@@ -626,6 +626,41 @@ class GraphService {
   }
 
   // ============================================
+  // AUTHENTICATION & SESSION MANAGEMENT
+  // ============================================
+
+  /**
+   * Get Entra External ID logout URL
+   * @param {string} postLogoutRedirectUri - URI to redirect to after logout
+   * @returns {string} Logout URL with redirect
+   */
+  getEntraLogoutUrl(postLogoutRedirectUri) {
+    if (!postLogoutRedirectUri) {
+      throw new Error("Post logout redirect URI is required");
+    }
+
+    const tenantId = entraConfig.tenantId;
+    let tenantName = entraConfig.tenantName;
+
+    // Extract tenant subdomain if full domain is provided
+    if (tenantName.includes(".onmicrosoft.com")) {
+      tenantName = tenantName.replace(".onmicrosoft.com", "");
+    }
+
+    const logoutUrl = `https://${tenantName}.ciamlogin.com/${tenantId}/oauth2/v2.0/logout`;
+    const logoutUrlWithRedirect = `${logoutUrl}?post_logout_redirect_uri=${encodeURIComponent(
+      postLogoutRedirectUri
+    )}`;
+
+    logger.info(
+      "Generated Entra External ID logout URL:",
+      logoutUrlWithRedirect
+    );
+
+    return logoutUrlWithRedirect;
+  }
+
+  // ============================================
   // USER FLOW MANAGEMENT
   // ============================================
 

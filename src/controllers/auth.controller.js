@@ -39,9 +39,41 @@ class AuthController {
   };
 
   logout = async (req, res) => {
-    res.json({
-      message: "Logout successful",
-    });
+    try {
+      // Get post logout redirect URI from query params or use a default
+      const postLogoutRedirectUri =
+        req.query.postLogoutRedirectUri ||
+        req.body.postLogoutRedirectUri ||
+        process.env.POST_LOGOUT_REDIRECT_URI ||
+        "http://localhost:3000";
+
+      // Clear local application session
+      if (req.session) {
+        req.session.destroy((err) => {
+          if (err) {
+            logger.error("Error destroying session", err);
+          }
+        });
+      }
+
+      // Get Entra External ID logout URL from graph service
+      const logoutUrlWithRedirect = graphService.getEntraLogoutUrl(
+        postLogoutRedirectUri
+      );
+
+      logger.info(
+        "Redirecting to Entra External ID logout:",
+        logoutUrlWithRedirect
+      );
+
+      res.redirect(logoutUrlWithRedirect);
+    } catch (error) {
+      logger.error("Error during logout", error);
+      res.status(500).json({
+        error: "Logout failed",
+        details: error.message,
+      });
+    }
   };
 
   checkDummyUserFirstSignInTokenIssuanceStart = async (req, res) => {

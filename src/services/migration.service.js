@@ -243,10 +243,16 @@ class MigrationService {
 
     try {
       // Step 1: Get the user flow ID associated with the application
-      const userFlowId = "e389bd3c-fe74-4eed-9b9b-e46d571756c8";
+      const userFlows = await graphService.listUserFlows();
+      console.log("userFlows", userFlows);
+      const userFlowIds = userFlows.map((userFlow) => userFlow.id);
+      // const userFlowId = "e389bd3c-fe74-4eed-9b9b-e46d571756c8"; // dev-signin-signup
+      // const userFlowId = "6290f785-2045-4f6a-8e98-acff4fef3dbd"; // kahala-qa
 
-      // Step 2: Update the user flow to disable signup
-      await graphService.updateUserFlowSignupSettings(userFlowId, false);
+      for (const userFlowId of userFlowIds) {
+        // Step 2: Update the user flow to disable signup
+        await graphService.updateUserFlowSignupSettings(userFlowId, false);
+      }
 
       logger.info("Signup disabled successfully in user flow");
     } catch (error) {

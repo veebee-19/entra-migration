@@ -9,4 +9,7 @@ router.post("/login", authController.loginWithJIT);
 // POST /api/auth/logout
 router.post("/logout", authController.logout);
 
+// GET /api/auth/logout (for browser redirects)
+router.get("/logout", authController.logout);
+
 export default router;
